@@ -4,8 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
-  </PropertyGroup>
+<EnableDefaultCompileItems>false</EnableDefaultCompileItems>   <!-- ← Add this -->  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DigitalWallet.Application\DigitalWallet.Application.csproj" />
