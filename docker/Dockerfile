@@ -12,8 +12,6 @@ RUN dotnet restore DigitalWallet.API/DigitalWallet.API.csproj
 
 # Copy everything else and publish
 COPY src/ .
-RUN echo "=== Listing Infrastructure directory ===" && ls -la /src/DigitalWallet.Infrastructure
-RUN echo "=== Finding .cs files in Infrastructure ===" && find /src/DigitalWallet.Infrastructure -name "*.cs" | head -20
 WORKDIR /src/DigitalWallet.API
 RUN dotnet publish -c Release -o /app/publish
 
