@@ -11,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+  <Compile Include="**/*.cs" Exclude="**/obj/**/*.cs;**/bin/**/*.cs" />
+</ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Entities/" />
     <Folder Include="Repositories/" />
   </ItemGroup>
