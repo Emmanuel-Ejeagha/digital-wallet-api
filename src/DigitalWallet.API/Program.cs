@@ -2,7 +2,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+// using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,8 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 var auth0Settings = builder.Configuration.GetSection("Auth0").Get<Auth0Settings>();
 builder.Services.Configure<Auth0Settings>(builder.Configuration.GetSection("Auth0"));
 
-builder.Services.AddHealthChecks()
-    .AddDbContextCheck<ApplicationDbContext>();
+// builder.Services.AddHealthChecks()
+//     .AddDbContextCheck<ApplicationDbContext>();
 // Add JWT authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -116,6 +116,6 @@ app.MapControllers();
 
 await app.MigrateAndSeedAsync();
 
-app.MapHealthChecks("/health");
+// app.MapHealthChecks("/health");
 
 app.Run();
