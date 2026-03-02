@@ -11,10 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-  <Compile Include="**/*.cs" Exclude="**/obj/**/*.cs;**/bin/**/*.cs" />
-</ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Entities/" />
     <Folder Include="Repositories/" />
   </ItemGroup>
@@ -31,6 +27,4 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
-
-
 </Project>
