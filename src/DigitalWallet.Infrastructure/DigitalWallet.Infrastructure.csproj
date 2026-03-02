@@ -4,35 +4,17 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-<EnableDefaultCompileItems>false</EnableDefaultCompileItems>   <!-- ← Add this -->  </PropertyGroup>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DigitalWallet.Application\DigitalWallet.Application.csproj" />
+    <!-- Explicitly remove any .resx wildcards that might be injected -->
+    <EmbeddedResource Remove="**/*.resx" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Entities\IdempotentRequest.cs" />
-    <Compile Include="Persistence\Configurations\AccountConfiguration.cs" />
-    <Compile Include="Persistence\Configurations\IdempotentRequestConfiguration.cs" />
-    <Compile Include="Persistence\Configurations\KycSubmissionConfiguration.cs" />
-    <Compile Include="Persistence\Configurations\LedgerEntryConfiguration.cs" />
-    <Compile Include="Persistence\Configurations\TransactionConfiguration.cs" />
-    <Compile Include="Persistence\Configurations\UserConfiguration.cs" />
-    <Compile Include="Persistence\ApplicationDbContext.cs" />
-    <Compile Include="Persistence\ApplicationDbContextFactory.cs" />
-    <Compile Include="Persistence\ApplicationDbContextSeed.cs" />
-    <Compile Include="Persistence\MigrateAndSeedExtensions.cs" />
-    <Compile Include="Repositories\AccountRepository.cs" />
-    <Compile Include="Repositories\KycSubmissionRepository.cs" />
-    <Compile Include="Repositories\TransactionRepository.cs" />
-    <Compile Include="Repositories\UserRepository.cs" />
-    <Compile Include="Services\DateTimeService.cs" />
-    <Compile Include="Services\EmailService.cs" />
-    <Compile Include="Services\IdempotencyService.cs" />
-    <Compile Include="Services\LocalFileStorageService.cs" />
-    <Compile Include="DependencyInjection.cs" />
-    <Compile Include="GlobalUsings.cs" />
-    <Compile Include="UnitOfWork.cs" />
+    <ProjectReference Include="..\DigitalWallet.Application\DigitalWallet.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
