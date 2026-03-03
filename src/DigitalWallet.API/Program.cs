@@ -1,18 +1,14 @@
 using System.Reflection;
-using DigitalWallet.API.Controllers.v1;
 using DigitalWallet.API.Middleware;
 using DigitalWallet.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-// using Microsoft.Extensions.Diagnostics.HealthChecks;
-
+using DigitalWallet.API.Controllers.v1;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-// Bind Auth0 settings from configuration
 var auth0Settings = builder.Configuration.GetSection("Auth0").Get<Auth0Settings>();
 builder.Services.Configure<Auth0Settings>(builder.Configuration.GetSection("Auth0"));
 
@@ -28,7 +24,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// Add authorization policies
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("User", policy => policy.RequireAuthenticatedUser().RequireClaim("role", "User"));
@@ -36,7 +31,6 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("Compliance", policy => policy.RequireAuthenticatedUser().RequireClaim("role", "Compliance"));
 });
 
-// Add API versioning
 builder.Services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new ApiVersion(1, 0);
@@ -50,7 +44,6 @@ builder.Services.AddApiVersioning(options =>
     options.SubstituteApiVersionInUrl = true;
 });
 
-// Add Swagger with JWT support
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Digital Wallet API", Version = "v1" });
@@ -75,26 +68,20 @@ builder.Services.AddSwaggerGen(c =>
             },
             new string[] {}
         }
-
     });
 });
-
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
 
-// Register custom services
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-// Add Application and Infrastructure layers
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -106,7 +93,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Custom middlewares
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
@@ -119,20 +105,35 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-    
+
     try
     {
-        logger.LogInformation("Starting database migration...");
-        await dbContext.Database.MigrateAsync();
-        logger.LogInformation("Database migration completed successfully.");
-        
+        var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
+        var migrationsExist = (await dbContext.Database.GetAppliedMigrationsAsync()).Any() || pendingMigrations.Any();
+
+        if (migrationsExist)
+        {
+            logger.LogInformation("Applying database migrations...");
+            await dbContext.Database.MigrateAsync();
+            logger.LogInformation("Database migrations applied successfully.");
+        }
+        else
+        {
+            logger.LogWarning("No EF Core migrations found. Falling back to EnsureCreatedAsync to create the database schema.");
+            bool created = await dbContext.Database.EnsureCreatedAsync();
+            if (created)
+                logger.LogInformation("Database created successfully.");
+            else
+                logger.LogInformation("Database already exists (but no migrations applied).");
+        }
+
         logger.LogInformation("Starting database seeding...");
         await ApplicationDbContextSeed.SeedAsync(dbContext, logger);
         logger.LogInformation("Database seeding completed.");
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "Database migration or seeding failed.");
+        logger.LogError(ex, "Database setup failed. The application will continue, but database operations may not work.");
     }
 }
 
