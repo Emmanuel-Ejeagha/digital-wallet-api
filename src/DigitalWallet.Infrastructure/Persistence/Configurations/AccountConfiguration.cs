@@ -63,9 +63,9 @@ namespace DigitalWallet.Infrastructure.Persistence.Configurations
                 .HasForeignKey(a => a.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasIndex("UserId", "CurrencyCode")
+            builder.HasIndex("UserId", "CurrencyCode", "Type")
                 .IsUnique()
-                .HasDatabaseName("IX_Accounts_UserId_CurrencyCode");
+                .HasDatabaseName("IX_Accounts_UserId_CurrencyCode_Type");
 
             builder.HasIndex(a => a.UserId)
                 .HasDatabaseName("IX_Accounts_UserId");
