@@ -82,7 +82,7 @@ public class ErrorHandlingMiddleware
                 response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 errorResponse.Title = "An unexpected error occured.";
                 errorResponse.Status = response.StatusCode;
-                errorResponse.Detail = "Please try magain later or contact support";
+                errorResponse.Detail = "Please try again later or contact support";
                 break;
         }
 
