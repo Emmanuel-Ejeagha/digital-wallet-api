@@ -1,11 +1,11 @@
 using System.Reflection;
+using DigitalWallet.API.Controllers.v1;
 using DigitalWallet.API.Middleware;
 using DigitalWallet.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using DigitalWallet.API.Controllers.v1;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -109,7 +109,8 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
-        var migrationsExist = (await dbContext.Database.GetAppliedMigrationsAsync()).Any() || pendingMigrations.Any();
+        var appliedMigrations = await dbContext.Database.GetAppliedMigrationsAsync();
+        var migrationsExist = appliedMigrations.Any() || pendingMigrations.Any();
 
         if (migrationsExist)
         {
