@@ -82,14 +82,11 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Digital Wallet API v1");
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Digital Wallet API v1");
+});
 
 app.UseHttpsRedirection();
 
