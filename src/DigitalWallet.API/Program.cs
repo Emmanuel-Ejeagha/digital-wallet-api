@@ -120,12 +120,37 @@ using (var scope = app.Services.CreateScope())
         }
         else
         {
-            logger.LogWarning("No EF Core migrations found. Falling back to EnsureCreatedAsync to create the database schema.");
-            bool created = await dbContext.Database.EnsureCreatedAsync();
-            if (created)
-                logger.LogInformation("Database created successfully.");
+            var canConnect = await dbContext.Database.CanConnectAsync();
+            if (!canConnect)
+            {
+                logger.LogInformation("Database does not exist. Creating with schema...");
+                await dbContext.Database.EnsureCreatedAsync();
+                logger.LogInformation("Database created with schema.");
+            }
             else
-                logger.LogInformation("Database already exists (but no migrations applied).");
+            {
+                var tableExists = false;
+                try
+                {
+                    tableExists = await dbContext.Users.AnyAsync();
+                }
+                catch (Npgsql.PostgresException ex) when (ex.SqlState == "42P01")
+                {
+                    tableExists = false;
+                }
+
+                if (!tableExists)
+                {
+                    logger.LogWarning("Database exists but is empty. Dropping and recreating with schema...");
+                    await dbContext.Database.EnsureDeletedAsync();
+                    await dbContext.Database.EnsureCreatedAsync();
+                    logger.LogInformation("Database recreated with schema.");
+                }
+                else
+                {
+                    logger.LogInformation("Database already has schema (no migrations applied).");
+                }
+            }
         }
 
         logger.LogInformation("Starting database seeding...");
@@ -134,7 +159,7 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "Database setup failed. The application will continue, but database operations may not work.");
+        logger.LogError(ex, "Database setup failed. The application will continue, but database operations may not work.");;
     }
 }
 
