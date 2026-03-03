@@ -3,6 +3,7 @@ using DigitalWallet.API.Controllers.v1;
 using DigitalWallet.API.Middleware;
 using DigitalWallet.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 // using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -114,7 +115,25 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-await app.MigrateAndSeedAsync();
-
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    
+    try
+    {
+        logger.LogInformation("Starting database migration...");
+        await dbContext.Database.MigrateAsync();
+        logger.LogInformation("Database migration completed successfully.");
+        
+        logger.LogInformation("Starting database seeding...");
+        await ApplicationDbContextSeed.SeedAsync(dbContext, logger);
+        logger.LogInformation("Database seeding completed.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "Database migration or seeding failed.");
+    }
+}
 
 app.Run();
