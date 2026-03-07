@@ -65,7 +65,7 @@ public class CreateAccountCommandTests
         _userRepoMock.Setup(x => x.GetByAuth0IdAsync("auth0|123", It.IsAny<CancellationToken>()))
             .ReturnsAsync(user);
         _kycRepoMock.Setup(x => x.GetByUserIdAsync(user.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((KycSubmission?)null); // no submission = NotSubmitted
+            .ReturnsAsync((KycSubmission?)null);
 
         var command = new CreateAccountCommand
         {
@@ -80,7 +80,7 @@ public class CreateAccountCommandTests
 
         // Assert
         await act.Should().ThrowAsync<ForbiddenAccessException>()
-            .WithMessage("KYC verification required to create an account.");
+            .WithMessage("KYC verification required to create an account");
     }
 
     [Fact]
